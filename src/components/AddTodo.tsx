@@ -1,7 +1,16 @@
 import React, { ChangeEvent, FC, FormEvent, useState } from 'react';
 import axios from 'axios';
+import { MutatorCallback } from 'swr/dist/types';
+import { Itodo } from './Todolist';
 
-const AddTodo: FC = () => {
+export interface AddTodoProps {
+  mutate: (
+    data?: Itodo[] | Promise<Itodo[]> | MutatorCallback<Itodo[]> | undefined,
+    shouldRevalidate?: boolean | undefined,
+  ) => Promise<Itodo[] | undefined>;
+}
+
+const AddTodo: FC<AddTodoProps> = ({ mutate }) => {
   const [addTitle, setAddTitle] = useState<string>('');
   const [addDesc, setAddDesc] = useState<string>('');
 
@@ -28,7 +37,11 @@ const AddTodo: FC = () => {
           desc: addDesc,
         },
       );
-      console.log(response.data);
+      if (response.statusText === 'Created') {
+        setAddTitle('');
+        setAddDesc('');
+        mutate();
+      }
     } catch (error) {
       console.error(error);
     }

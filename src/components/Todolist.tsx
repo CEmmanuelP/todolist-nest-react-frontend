@@ -2,8 +2,9 @@ import React, { FC } from 'react';
 import axios from 'axios';
 import useSWR from 'swr';
 import AddTodo from './AddTodo';
+import Todo from './Todo';
 
-interface Itodo {
+export interface Itodo {
   id: number;
   createdAt: Date;
   updatedAt: Date;
@@ -23,7 +24,7 @@ const Todolist: FC = () => {
     }
   };
 
-  const { data, error } = useSWR<Itodo[]>(
+  const { data, error, mutate } = useSWR<Itodo[]>(
     `${process.env.REACT_APP_BACK_URL}/todo`,
     fetcher,
   );
@@ -33,12 +34,16 @@ const Todolist: FC = () => {
 
   return (
     <div>
-      <AddTodo />
+      <AddTodo mutate={mutate} />
       {data.map((todo) => {
         return (
-          <li key={todo.id}>
-            {todo.id} - {todo.title} - {todo.desc}
-          </li>
+          <Todo
+            key={todo.id}
+            id={todo.id}
+            title={todo.title}
+            desc={todo.desc}
+            mutate={mutate}
+          />
         );
       })}
     </div>
